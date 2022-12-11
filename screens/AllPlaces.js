@@ -1,14 +1,6 @@
 import PlacesList from "../components/places/PlacesList";
-import { Button, View } from "react-native";
+import { View } from "react-native";
 
-export default function AllPlaces({ navigation }) {
-  function goToAddPlace() {
-    navigation.navigate("AddPlace");
-  }
-
-  return (
-    <View>
-      <PlacesList />
-    </View>
-  );
+export default function AllPlaces() {
+  return <PlacesList />;
 }
