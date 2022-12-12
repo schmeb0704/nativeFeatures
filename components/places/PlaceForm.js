@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -14,14 +14,29 @@ import LocationPicker from "./LocationPicker";
 
 export default function PlaceForm() {
   const [enteredTitle, setEnteredTitle] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState();
+  const [selectedImage, setSelectedImage] = useState();
 
   function changeTitleHandler(enteredText) {
     setEnteredTitle(enteredText);
   }
 
-  function savePlaceHandler() {
-    Alert.alert("Favorite Place Saved!", "Continue adding more!");
+  function takeImageHandler(imageUri) {
+    setSelectedImage(imageUri);
   }
+
+  const pickedLocationHandler = useCallback((location) => {
+    setSelectedLocation(location);
+  }, []);
+
+  function savePlaceHandler() {
+    Alert.alert(
+      "Favorite Place Saved!",
+      `${enteredTitle}, ${selectedImage}, ${selectedLocation}`
+    );
+  }
+
+  console.log(selectedLocation);
 
   return (
     <ScrollView style={styles.form}>
@@ -33,8 +48,8 @@ export default function PlaceForm() {
           value={enteredTitle}
         />
       </View>
-      <ImagePicker />
-      <LocationPicker />
+      <ImagePicker onTakeImage={takeImageHandler} />
+      <LocationPicker onPickLocation={pickedLocationHandler} />
       <RegButton onPress={savePlaceHandler}>Add Place</RegButton>
     </ScrollView>
   );
