@@ -1,6 +1,14 @@
 import { useState } from "react";
-import { View, Text, ScrollView, TextInput, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import { Colors } from "../../constants/colors";
+import RegButton from "../UI/RegButton";
 import ImagePicker from "./ImagePicker";
 import LocationPicker from "./LocationPicker";
 
@@ -9,6 +17,10 @@ export default function PlaceForm() {
 
   function changeTitleHandler(enteredText) {
     setEnteredTitle(enteredText);
+  }
+
+  function savePlaceHandler() {
+    Alert.alert("Favorite Place Saved!", "Continue adding more!");
   }
 
   return (
@@ -23,6 +35,7 @@ export default function PlaceForm() {
       </View>
       <ImagePicker />
       <LocationPicker />
+      <RegButton onPress={savePlaceHandler}>Add Place</RegButton>
     </ScrollView>
   );
 }
