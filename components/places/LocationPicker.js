@@ -1,28 +1,23 @@
 import { View, StyleSheet, Alert, Text, Image } from "react-native";
 import OutlinedButton from "../UI/OutlinedButton";
 import { Colors } from "../../constants/colors";
-import {
-  getCurrentPositionAsync,
-  useForegroundPermissions,
-  PermissionStatus,
-} from "expo-location";
+import * as Location from "expo-location";
 import { useEffect, useState } from "react";
 import {
   useIsFocused,
   useNavigation,
   useRoute,
 } from "@react-navigation/native";
-import { translateCoords } from "../../util/location";
+import { getMap, translateCoords } from "../../util/location";
 
 export default function LocationPicker({ onPickLocation }) {
   const [pickedLocation, setPickedLocation] = useState();
+  const [currLoc, setCurrLoc] = useState();
+  const [errorMsg, setErrorMsg] = useState();
   const isFocused = useIsFocused();
 
   const navigation = useNavigation();
   const route = useRoute();
-
-  const [locationPermissionInformation, requestPermission] =
-    useForegroundPermissions();
 
   useEffect(() => {
     if (isFocused && route.params) {
@@ -48,52 +43,52 @@ export default function LocationPicker({ onPickLocation }) {
     handleLocation();
   }, [pickedLocation, onPickLocation]);
 
-  async function verifyPermissions() {
-    if (
-      locationPermissionInformation.status === PermissionStatus.UNDETERMINED
-    ) {
-      const permissionResponse = await requestPermission();
-      return permissionResponse.granted;
-    }
-
-    if (locationPermissionInformation.status === PermissionStatus.DENIED) {
-      Alert.alert(
-        "Insufficient Permissions",
-        "You need to grant location permissions to use this app"
-      );
-      return false;
-    }
-
-    return true;
+  function getLocationHandler() {
+    setPickedLocation(currLoc);
   }
 
-  async function getLocationHandler() {
-    const hasPermissions = await verifyPermissions();
-
-    if (!hasPermissions) {
-      return;
-    }
-
-    const location = await getCurrentPositionAsync();
-    setPickedLocation({
-      lat: location.coords.latitude,
-      lng: location.coords.longitude,
+  async function pickOnMapHandler() {
+    navigation.navigate("Map", {
+      lat: currLoc.lat,
+      lng: currLoc.lng
     });
-  }
-
-  function pickOnMapHandler() {
-    navigation.navigate("Map");
   }
 
   let userLocation = <Text>No location picked yet</Text>;
 
   if (pickedLocation) {
     userLocation = (
-      <Text>
-        Latitude: {pickedLocation.lat}, Longitude: {pickedLocation.lng}
-      </Text>
+      <Image
+        source={{ uri: getMap(pickedLocation.lat, pickedLocation.lng) }}
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+      />
+      // <Text>
+      //   Latitude: {pickedLocation.lat}, Longitude: {pickedLocation.lng}
+      //   {mapPic}
+      // </Text>
     );
   }
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+      const location = await Location.getCurrentPositionAsync();
+      setCurrLoc({
+        lat: location.coords.latitude,
+        lng: location.coords.longitude,
+      });
+    })();
+  }, []);
+
+  console.log(currLoc);
 
   return (
     <View>

@@ -3,14 +3,15 @@ import { Alert, StyleSheet } from "react-native";
 import { useCallback, useLayoutEffect, useState } from "react";
 import IconButton from "../components/UI/IconButton";
 
-export default function Map({ navigation }) {
+export default function Map({ navigation, route }) {
   const [selectedLocation, setSelectedLocation] = useState();
+  const { lat, lng } = route.params;
 
   const region = {
-    latitude: 37.78,
-    longitude: -122.43,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitude: lat, //37.78,
+    longitude: lng, //-122.43,
+    latitudeDelta: 0.001,
+    longitudeDelta: 0.005,
   };
 
   function selectLocationHandler(event) {
@@ -55,6 +56,14 @@ export default function Map({ navigation }) {
       style={styles.map}
       onPress={selectLocationHandler}
     >
+      <Marker
+        title="You are here"
+        coordinate={{
+          latitude: lat,
+          longitude: lng,
+        }}
+        description="hehe"
+      />
       {selectedLocation && (
         <Marker
           title="Picked Location"
